@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
+import { checkFeatureAccess } from '@/lib/subscription-middleware';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if user has access to search feature (Personal+)
+    const accessCheck = await checkFeatureAccess(request, 'search');
+    
+    if (!accessCheck.allowed) {
+      return NextResponse.json(
+        { 
+          error: accessCheck.error,
+          requiresUpgrade: true,
+          upgradePrompt: accessCheck.upgradePrompt,
+        },
+        { status: 403 }
+      );
+    }
+
     const token = request.cookies.get('auth-token')?.value;
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

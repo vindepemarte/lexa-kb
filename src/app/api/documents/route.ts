@@ -1,12 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
+import { checkUploadLimit, getUserUsage } from '@/lib/subscription-middleware';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import PDFParser from 'pdf2json';
 
 export async function POST(request: NextRequest) {
   try {
+    // Parse multipart form FIRST to get file size
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const title = formData.get('title') as string;
+    const paraCategory = formData.get('paraCategory') as string || 'resources';
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    // Check upload limits BEFORE processing
+    const fileSizeBytes = file.size;
+    const uploadCheck = await checkUploadLimit(request, fileSizeBytes);
+    
+    if (!uploadCheck.allowed) {
+      return NextResponse.json(
+        { 
+          error: uploadCheck.error,
+          requiresUpgrade: true,
+        },
+        { status: 403 }
+      );
+    }
+
     // Verify auth
     const token = request.cookies.get('auth-token')?.value;
     if (!token) {
@@ -16,16 +41,6 @@ export async function POST(request: NextRequest) {
     const user = verifyToken(token);
     if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Parse multipart form
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const title = formData.get('title') as string;
-    const paraCategory = formData.get('paraCategory') as string || 'resources';
-
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
     // Create upload directory
