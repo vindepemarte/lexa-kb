@@ -8,7 +8,7 @@ const plans = [
     id: 'personal',
     name: 'Personal',
     price: '€9',
-    priceId: 'price_1Q5ZrHQyB02WZhhMSYT81cs5',
+    priceId: 'price_1T5FC5QyB02WZhhMEg8fFmYe',
     description: 'Perfect for individuals getting organized',
     features: [
       'Up to 10,000 notes',
@@ -22,7 +22,7 @@ const plans = [
     id: 'pro',
     name: 'Pro',
     price: '€29',
-    priceId: 'price_1Q5ZrHQyB02WZhhMSYT81cs6',
+    priceId: 'price_1T5FCJQyB02WZhhMlMXvSDYb',
     description: 'For power users and small teams',
     features: [
       'Unlimited notes',
@@ -38,7 +38,7 @@ const plans = [
     id: 'enterprise',
     name: 'Enterprise',
     price: '€99',
-    priceId: 'price_1Q5ZrHQyB02WZhhMSYT81cs7',
+    priceId: 'price_1T5FCTQyB02WZhhMufeyyHwh',
     description: 'For teams and organizations',
     features: [
       'Unlimited team members',
