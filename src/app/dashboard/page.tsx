@@ -85,11 +85,17 @@ export default function Dashboard() {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">Lexa&apos;s Knowledge Base</h1>
-          <div className="flex gap-4">
-            <a href="/dashboard/search" className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
+          <div className="flex gap-2 sm:gap-4">
+            <a href="/dashboard/docs" className="px-2 sm:px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base">
+              📄 Docs
+            </a>
+            <a href="/dashboard/search" className="px-2 sm:px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base">
               🔍 Search
             </a>
-            <Button onClick={handleLogout} variant="outline">Logout</Button>
+            <a href="/dashboard/chat" className="px-2 sm:px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base">
+              💬 Chat
+            </a>
+            <Button onClick={handleLogout} variant="outline" className="text-sm sm:text-base">Logout</Button>
           </div>
         </div>
       </header>
