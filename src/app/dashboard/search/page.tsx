@@ -46,96 +46,100 @@ export default function SearchPage() {
   };
 
   const getCategoryColor = (category: string) => {
-    const colors = {
-      projects: 'bg-blue-500',
-      areas: 'bg-green-500',
-      resources: 'bg-purple-500',
-      archives: 'bg-gray-500',
+    const colors: Record<string, string> = {
+      projects: 'from-blue-500 to-blue-600',
+      areas: 'from-green-500 to-green-600',
+      resources: 'from-purple-500 to-purple-600',
+      archives: 'from-gray-500 to-gray-600',
     };
-    return colors[category as keyof typeof colors] || colors.resources;
+    return colors[category] || colors.resources;
   };
 
   const getCategoryEmoji = (category: string) => {
-    const emojis = {
+    const emojis: Record<string, string> = {
       projects: '🚀',
       areas: '🎯',
       resources: '📚',
       archives: '📦',
     };
-    return emojis[category as keyof typeof emojis] || '📄';
+    return emojis[category] || '📄';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-lg shadow-sm border-b border-purple-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-600 to-purple-600 flex items-center justify-center text-white text-xl">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] relative overflow-hidden">
+      <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+        backgroundImage: `
+          radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)
+        `
+      }} />
+
+      <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-5xl mx-auto px-4 py-3 sm:py-4">
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-pink-600 to-purple-600 flex items-center justify-center text-white text-lg sm:text-xl flex-shrink-0">
                 🔍
               </div>
-              <div>
-                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-purple-300 truncate">
                   Search Knowledge
                 </h1>
-                <p className="text-xs text-gray-500">Find anything instantly</p>
+                <p className="text-xs text-white/50 hidden sm:block">Find anything instantly</p>
               </div>
             </div>
-            
+
             <a
               href="/dashboard"
-              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-md hover:shadow-lg text-sm font-medium"
+              className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-md text-xs sm:text-sm font-medium min-h-[44px] flex items-center flex-shrink-0"
             >
-              ← Back to Dashboard
+              ← Dashboard
             </a>
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        {/* Search Hero */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-pink-600 to-purple-600 text-white text-4xl mb-4 animate-pulse-glow">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 sm:py-12">
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-pink-600 to-purple-600 text-white text-3xl sm:text-4xl mb-4 shadow-xl">
             🔍
           </div>
-          <h2 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+          <h2 className="text-3xl sm:text-4xl font-black mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-300">
             Search Your Knowledge
           </h2>
-          <p className="text-gray-600 text-lg">
+          <p className="text-white/70 text-base sm:text-lg px-4">
             Find any document, note, or idea in seconds
           </p>
         </div>
 
-        {/* Search Form */}
-        <Card className="p-8 mb-8 bg-white/80 backdrop-blur-lg border-purple-100 shadow-xl">
-          <form onSubmit={handleSearch} className="space-y-6">
+        <Card className="p-5 sm:p-8 mb-6 sm:mb-8 bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
+          <form onSubmit={handleSearch} className="space-y-4 sm:space-y-6">
             <div className="relative">
               <Input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="What are you looking for?"
-                className="text-lg py-4 px-6 border-2 border-purple-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all"
+                className="text-base sm:text-lg py-3 sm:py-4 px-4 sm:px-6 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500 min-h-[48px] sm:min-h-[56px]"
               />
               {query && (
                 <button
                   type="button"
                   onClick={() => setQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
                   ✕
                 </button>
               )}
             </div>
 
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 font-medium">Filter by:</span>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+              <div className="flex items-center gap-2 flex-1">
+                <span className="text-xs sm:text-sm text-white/70 font-medium whitespace-nowrap">Filter:</span>
                 <select
                   value={paraCategory}
                   onChange={(e) => setParaCategory(e.target.value)}
-                  className="px-4 py-2 border border-purple-200 rounded-lg focus:border-purple-500 focus:ring-purple-500 bg-white"
+                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2.5 border border-white/20 rounded-lg bg-white/5 text-white focus:border-purple-500 min-h-[44px] text-sm"
                 >
                   <option value="">All Categories</option>
                   <option value="projects">🚀 Projects</option>
@@ -148,10 +152,10 @@ export default function SearchPage() {
               <Button
                 type="submit"
                 disabled={loading || !query.trim()}
-                className="ml-auto px-8 py-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 min-h-[48px] text-sm sm:text-base"
               >
                 {loading ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center justify-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Searching...
                   </span>
@@ -163,51 +167,50 @@ export default function SearchPage() {
           </form>
         </Card>
 
-        {/* Results */}
         {searched && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-gray-600">
+            <div className="flex items-center justify-between px-1">
+              <p className="text-white/70 text-sm">
                 {results.length === 0 ? (
-                  <span className="text-gray-500">No results found</span>
+                  <span className="text-white/50">No results found</span>
                 ) : (
-                  <span className="font-medium text-purple-700">
+                  <span className="font-medium text-purple-300">
                     Found {results.length} result{results.length !== 1 ? 's' : ''}
                   </span>
                 )}
               </p>
               {results.length > 0 && (
-                <p className="text-sm text-gray-500">
+                <p className="text-xs text-white/40 hidden sm:block">
                   Sorted by relevance
                 </p>
               )}
             </div>
 
             {results.length === 0 ? (
-              <Card className="p-12 bg-white/60 backdrop-blur-lg border-purple-100 text-center">
-                <div className="text-6xl mb-4">🤔</div>
-                <p className="text-gray-600 text-lg mb-2">No matching documents found</p>
-                <p className="text-gray-500 text-sm">Try different keywords or remove filters</p>
+              <Card className="p-8 sm:p-12 bg-white/5 backdrop-blur-xl border-white/10 text-center">
+                <div className="text-5xl sm:text-6xl mb-4">🤔</div>
+                <p className="text-white/60 text-base sm:text-lg mb-2">No matching documents found</p>
+                <p className="text-white/40 text-sm">Try different keywords or remove filters</p>
               </Card>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {results.map((result, index) => (
                   <Card
                     key={result.id}
-                    className="p-6 bg-white/80 backdrop-blur-lg border-purple-100 hover:shadow-xl transition-all cursor-pointer group"
+                    className="p-4 sm:p-6 bg-white/10 backdrop-blur-xl border-white/10 hover:border-purple-500/30 transition-all cursor-pointer group"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 rounded-lg ${getCategoryColor(result.para_category)} flex items-center justify-center text-white text-xl flex-shrink-0`}>
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br ${getCategoryColor(result.para_category)} flex items-center justify-center text-white text-lg sm:text-xl flex-shrink-0`}>
                         {getCategoryEmoji(result.para_category)}
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4 mb-2">
-                          <h3 className="font-semibold text-lg text-gray-900 group-hover:text-purple-700 transition-colors">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <h3 className="font-semibold text-base sm:text-lg text-white group-hover:text-purple-300 transition-colors">
                             {result.title}
                           </h3>
-                          <span className="text-sm text-gray-400 flex-shrink-0">
+                          <span className="text-xs text-white/40 flex-shrink-0 hidden sm:block">
                             {new Date(result.created_at).toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
@@ -218,16 +221,16 @@ export default function SearchPage() {
 
                         {result.highlight && (
                           <div
-                            className="text-gray-600 mt-2 prose prose-sm max-w-none"
+                            className="text-white/70 text-sm mt-2 prose prose-sm max-w-none"
                             dangerouslySetInnerHTML={{ __html: result.highlight }}
                           />
                         )}
 
-                        <div className="flex items-center gap-3 mt-3">
-                          <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full capitalize">
+                        <div className="flex items-center gap-2 mt-3">
+                          <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full capitalize">
                             {result.para_category}
                           </span>
-                          <span className="text-xs text-gray-400">{result.file_type}</span>
+                          <span className="text-xs text-white/40">{result.file_type}</span>
                         </div>
                       </div>
                     </div>
@@ -238,12 +241,11 @@ export default function SearchPage() {
           </div>
         )}
 
-        {/* Empty State */}
         {!searched && (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">💭</div>
-            <p className="text-gray-500 text-lg">Start typing to search your knowledge base</p>
-            <p className="text-gray-400 text-sm mt-2">Use specific keywords for better results</p>
+          <div className="text-center py-8 sm:py-12">
+            <div className="text-5xl sm:text-6xl mb-4">💭</div>
+            <p className="text-white/60 text-base sm:text-lg">Start typing to search your knowledge base</p>
+            <p className="text-white/40 text-sm mt-2">Use specific keywords for better results</p>
           </div>
         )}
       </main>
