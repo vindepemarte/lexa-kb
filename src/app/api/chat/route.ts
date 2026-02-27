@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyToken } from '@/lib/auth';
+import { query } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,12 +9,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const user = verifyToken(token);
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { message, conversationHistory = [] } = body;
 
     if (!message) {
       return NextResponse.json({ error: 'Message required' }, { status: 400 });
     }
+
+    // Fetch user's documents to provide context
+    const documentsResult = await query(
+      'SELECT title, content, para_category, file_type FROM documents WHERE user_id = $1 AND content IS NOT NULL AND content != \'\' ORDER BY created_at DESC LIMIT 50',
+      [user.id]
+    );
+
+    // Build context from documents
+    let documentsContext = '';
+    if (documentsResult.rows.length > 0) {
+      documentsContext = '\n\nUser\'s Documents:\n' + documentsResult.rows.map((doc: any, i: number) => {
+        const preview = doc.content.substring(0, 1000); // First 1000 chars per doc
+        return `${i + 1}. "${doc.title}" (${doc.para_category}, ${doc.file_type}):\n${preview}${doc.content.length > 1000 ? '...' : ''}`;
+      }).join('\n\n');
+    }
+
+    // Build system prompt with document context
+    const systemPrompt = `You are Lexa, a friendly AI assistant who helps users organize and understand their documents. You have access to the user's uploaded documents and can answer questions about them.
+
+${documentsContext ? documentsContext : 'The user has not uploaded any documents yet.'}
+
+When answering:
+- If asked about documents, reference specific documents by title
+- Provide accurate information based on the document content
+- Be helpful, concise, and warm
+- Use emojis occasionally 💜
+- If you don't know something based on the documents, say so honestly`;
 
     // Call OpenRouter API
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -27,12 +61,12 @@ export async function POST(request: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: `You are Lexa, a friendly AI assistant. You help users organize their knowledge and answer questions about their documents. Be concise, helpful, and warm. Use emojis occasionally. 💜`
+            content: systemPrompt
           },
           ...conversationHistory,
           { role: 'user', content: message }
         ],
-        max_tokens: 500,
+        max_tokens: 1000,
         temperature: 0.7,
       }),
     });

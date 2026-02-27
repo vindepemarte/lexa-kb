@@ -3,6 +3,7 @@ import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import * as pdfParse from 'pdf-parse';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,10 +39,30 @@ export async function POST(request: NextRequest) {
     const filePath = path.join(uploadDir, fileName);
     await writeFile(filePath, buffer);
 
-    // Read file content (for text files)
+    // Extract text content based on file type
     let content = '';
-    if (file.type.startsWith('text/') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
-      content = buffer.toString('utf-8');
+
+    try {
+      if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+        // Extract text from PDF
+        console.log('Extracting text from PDF:', file.name);
+        const pdfData = await (pdfParse as any).default(buffer);
+        content = pdfData.text;
+        console.log('Extracted PDF text length:', content.length);
+      } else if (file.type.startsWith('text/') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
+        // Plain text files
+        content = buffer.toString('utf-8');
+      } else {
+        // For other file types, try to extract as text
+        try {
+          content = buffer.toString('utf-8');
+        } catch {
+          content = `[Binary file: ${file.name}]`;
+        }
+      }
+    } catch (extractError) {
+      console.error('Error extracting text:', extractError);
+      content = `[Could not extract text from ${file.name}]`;
     }
 
     // Save to database
@@ -55,6 +76,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: 'File uploaded successfully',
       document: result.rows[0],
+      contentExtracted: content.length > 0,
+      contentLength: content.length,
     });
   } catch (error) {
     console.error('Upload error:', error);
