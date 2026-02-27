@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2026-02-25.clover',
-});
-
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get('auth-token')?.value;
@@ -18,6 +14,11 @@ export async function POST(request: NextRequest) {
     if (!priceId) {
       return NextResponse.json({ error: 'Price ID required' }, { status: 400 });
     }
+
+    // Initialize Stripe only when needed (not at build time)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+      apiVersion: '2026-02-25.clover',
+    });
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
