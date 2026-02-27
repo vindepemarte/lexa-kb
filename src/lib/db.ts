@@ -15,6 +15,10 @@ export async function query(text: string, params?: any[]) {
 
 export async function initDB() {
   try {
+    // Enable pgvector extension
+    await query(`CREATE EXTENSION IF NOT EXISTS vector;`);
+    console.log('✅ pgvector extension enabled');
+
     // Create users table
     await query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -37,7 +41,6 @@ export async function initDB() {
         title VARCHAR(500) NOT NULL,
         content TEXT,
         para_category VARCHAR(50) DEFAULT 'resources',
-        embedding VECTOR(384),
         file_path TEXT,
         file_type VARCHAR(100),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -45,12 +48,13 @@ export async function initDB() {
       );
     `);
 
-    // Create embeddings index for vector similarity search
-    await query(`
-      CREATE INDEX IF NOT EXISTS documents_embedding_idx ON documents 
-      USING ivfflat (embedding vector_cosine_ops)
-      WITH (lists = 100);
-    `);
+    // Try to add embedding column if pgvector is available
+    try {
+      await query(`ALTER TABLE documents ADD COLUMN IF NOT EXISTS embedding VECTOR(384);`);
+      console.log('✅ Vector column added for embeddings');
+    } catch (error) {
+      console.log('⚠️ Vector column not added (pgvector may not be fully configured)');
+    }
 
     console.log('✅ Database initialized successfully');
   } catch (error) {
