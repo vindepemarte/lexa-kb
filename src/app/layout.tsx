@@ -16,12 +16,14 @@ export const metadata: Metadata = {
     url: "https://app.hellolexa.space",
     siteName: "Lexa KB",
     type: "website",
+    images: [{ url: "https://app.hellolexa.space/og-image.svg" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Lexa KB - Your AI-Powered Second Brain",
     description: "Upload your notes, documents, and ideas. Get them organized, searchable, and chat with AI about your knowledge.",
     site: "@hellolexa_",
+    images: ["https://app.hellolexa.space/og-image.svg"],
   },
 };
 
