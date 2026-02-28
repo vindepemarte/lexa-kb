@@ -96,21 +96,21 @@ export default function Home() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
-              <div>
-                <Label htmlFor="name" className="text-white/90 text-sm font-medium">Name</Label>
+              <div className="group">
+                <Label htmlFor="name" className="text-white/80 text-xs font-semibold tracking-wider uppercase mb-1 block group-focus-within:text-purple-400 transition-colors">Name</Label>
                 <Input
                   id="name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
-                  className="mt-1.5 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500 focus:ring-purple-500/50"
+                  className="h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-xl transition-all"
                 />
               </div>
             )}
 
-            <div>
-              <Label htmlFor="email" className="text-white/90 text-sm font-medium">Email</Label>
+            <div className="group">
+              <Label htmlFor="email" className="text-white/80 text-xs font-semibold tracking-wider uppercase mb-1 block group-focus-within:text-purple-400 transition-colors">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -118,12 +118,12 @@ export default function Home() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="mt-1.5 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500 focus:ring-purple-500/50"
+                className="h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-xl transition-all"
               />
             </div>
 
-            <div>
-              <Label htmlFor="password" className="text-white/90 text-sm font-medium">Password</Label>
+            <div className="group">
+              <Label htmlFor="password" className="text-white/80 text-xs font-semibold tracking-wider uppercase mb-1 block group-focus-within:text-pink-400 transition-colors">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -132,12 +132,15 @@ export default function Home() {
                 placeholder="••••••••"
                 required
                 minLength={isLogin ? undefined : 8}
-                className="mt-1.5 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-purple-500 focus:ring-purple-500/50"
+                className="h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/50 rounded-xl transition-all"
               />
             </div>
 
             {error && (
-              <p className="text-sm text-pink-300 bg-pink-500/10 px-3 py-2 rounded-lg">{error}</p>
+              <div className="animate-fade-in p-3 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center gap-2">
+                <span className="text-pink-400 text-sm">⚠️</span>
+                <p className="text-sm text-pink-300">{error}</p>
+              </div>
             )}
 
             <Button

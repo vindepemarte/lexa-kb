@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { UpgradeModal } from '@/components/dashboard/upgrade-modal';
+import { OnboardingFlow } from '@/components/dashboard/onboarding-flow';
 
 interface Document {
   id: number;
@@ -38,6 +40,7 @@ export default function Dashboard() {
   const [paraCategory, setParaCategory] = useState('resources');
   const [showUpload, setShowUpload] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -83,8 +86,7 @@ export default function Dashboard() {
         setShowUpload(false);
         fetchData();
       } else if (res.status === 403) {
-        alert(data.error || 'Limit reached. Upgrade your plan.');
-        router.push('/dashboard/pricing');
+        setShowUpgradeModal(true);
       } else {
         alert('Upload failed');
       }
@@ -204,49 +206,55 @@ export default function Dashboard() {
         {usage && (
           <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Documents */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2">
-                  <span className="text-2xl">📄</span>
-                  <span className="text-white font-semibold">Documents</span>
+            <div className="bg-[#1a1635]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-xl shadow-inner border border-purple-500/30">📄</div>
+                  <span className="text-white font-bold tracking-wide">Documents</span>
                 </div>
-                <span className="text-white/70 text-sm">
-                  {usage.documents.used} / {usage.documents.limit === -1 ? '∞' : usage.documents.limit}
-                </span>
+                <div className="text-right">
+                  <span className="text-white font-bold text-lg">{usage.documents.used}</span>
+                  <span className="text-white/50 text-sm ml-1">/ {usage.documents.limit === -1 ? '∞' : usage.documents.limit}</span>
+                </div>
               </div>
-              <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-white/5 rounded-full h-2 mb-2 overflow-hidden border border-white/5">
                 <div
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(168,85,247,0.5)]"
                   style={{ width: `${Math.min(usage.documents.percent, 100)}%` }}
                 />
               </div>
               {usage.documents.percent >= 80 && (
-                <p className="text-yellow-400 text-sm mt-2">
-                  ⚠️ Almost at limit. <button onClick={() => router.push('/dashboard/pricing')} className="underline">Upgrade now</button>
+                <p className="text-pink-400 text-xs mt-3 flex items-center animate-pulse">
+                  <span className="mr-1">⚠️</span> Almost at limit.
+                  <button onClick={() => setShowUpgradeModal(true)} className="ml-1 underline font-semibold hover:text-pink-300 transition-colors">Upgrade now</button>
                 </p>
               )}
             </div>
 
             {/* Storage */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2">
-                  <span className="text-2xl">💾</span>
-                  <span className="text-white font-semibold">Storage</span>
+            <div className="bg-[#1a1635]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-xl shadow-inner border border-blue-500/30">💾</div>
+                  <span className="text-white font-bold tracking-wide">Storage</span>
                 </div>
-                <span className="text-white/70 text-sm">
-                  {usage.storage.usedFormatted} / {usage.storage.limitFormatted}
-                </span>
+                <div className="text-right">
+                  <span className="text-white font-bold text-lg">{usage.storage.usedFormatted}</span>
+                  <span className="text-white/50 text-sm ml-1">/ {usage.storage.limitFormatted}</span>
+                </div>
               </div>
-              <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-white/5 rounded-full h-2 mb-2 overflow-hidden border border-white/5">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full rounded-full transition-all"
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                   style={{ width: `${Math.min(usage.storage.percent, 100)}%` }}
                 />
               </div>
               {usage.storage.percent >= 80 && (
-                <p className="text-yellow-400 text-sm mt-2">
-                  ⚠️ Almost at limit. <button onClick={() => router.push('/dashboard/pricing')} className="underline">Upgrade now</button>
+                <p className="text-pink-400 text-xs mt-3 flex items-center animate-pulse">
+                  <span className="mr-1">⚠️</span> Almost at limit.
+                  <button onClick={() => setShowUpgradeModal(true)} className="ml-1 underline font-semibold hover:text-pink-300 transition-colors">Upgrade now</button>
                 </p>
               )}
             </div>
@@ -370,6 +378,16 @@ export default function Dashboard() {
           )}
         </div>
       </main>
+
+      <OnboardingFlow />
+      {usage && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          documentUsage={usage.documents}
+          storageUsage={usage.storage}
+        />
+      )}
     </div>
   );
 }
