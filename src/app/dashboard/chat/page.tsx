@@ -51,11 +51,21 @@ export default function ChatPage() {
       });
 
       const data = await res.json();
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: data.reply || 'Sorry, I encountered an error.',
-        timestamp: new Date()
-      }]);
+      
+      if (res.status === 403 && data.requiresUpgrade) {
+        // Feature gate - show upgrade prompt
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `🔒 **AI Chat requires Pro plan**\n\nUpgrade to Pro (€29/mo) to chat with your documents.\n\n[Click here to upgrade →](/dashboard/pricing)`,
+          timestamp: new Date()
+        }]);
+      } else {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.reply || data.error || 'Sorry, I encountered an error.',
+          timestamp: new Date()
+        }]);
+      }
     } catch (error) {
       setMessages(prev => [...prev, {
         role: 'assistant',
