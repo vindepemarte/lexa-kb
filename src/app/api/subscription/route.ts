@@ -16,15 +16,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Get user tier
+    // Get user tier - only query columns we know exist
     const userResult = await query(
-      'SELECT tier, subscription_status, subscription_current_period_end FROM users WHERE id = $1',
+      'SELECT tier FROM users WHERE id = $1',
       [user.id]
     );
 
     const userTier = userResult.rows[0]?.tier || 'free';
-    const subscriptionStatus = userResult.rows[0]?.subscription_status || 'active';
-    const periodEnd = userResult.rows[0]?.subscription_current_period_end;
+    const subscriptionStatus = 'active';
+    const periodEnd = null;
 
     // Get usage stats
     const usage = await getUserUsage(user.id);
