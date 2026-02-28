@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 export function OnboardingFlow() {
     const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +27,8 @@ export function OnboardingFlow() {
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-md bg-[#1a1635]/95 backdrop-blur-xl border border-white/10 p-0 overflow-hidden text-white shadow-2xl">
+            <DialogContent className="sm:max-w-md bg-[#1a1635]/95 backdrop-blur-xl border border-white/10 p-0 overflow-hidden text-white shadow-2xl" aria-describedby={undefined}>
+                <DialogTitle className="sr-only">Welcome to Lexa KB</DialogTitle>
                 <div className="relative">
                     {/* Decorative background flare */}
                     <div className="absolute -top-24 -left-24 w-48 h-48 bg-purple-500/30 rounded-full blur-[80px]" />
