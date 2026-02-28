@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyToken } from '@/lib/auth';
 import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
@@ -6,6 +7,11 @@ export async function POST(request: NextRequest) {
     const token = request.cookies.get('auth-token')?.value;
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = verifyToken(token);
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -20,9 +26,10 @@ export async function POST(request: NextRequest) {
       apiVersion: '2026-02-25.clover',
     });
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session with customer email for webhook matching
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
+      customer_email: user.email,
       line_items: [
         {
           price: priceId,

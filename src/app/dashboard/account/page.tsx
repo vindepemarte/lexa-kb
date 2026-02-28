@@ -14,15 +14,19 @@ import {
     CheckCircle2
 } from 'lucide-react';
 
-interface UserUsage {
-    plan: string;
-    documents: { used: number; limit: number; percent: number };
-    storage: { used: number; limit: number; percent: number };
-    features: { search: boolean; chat: boolean };
+interface SubscriptionData {
+    tier: string;
+    tierName: string;
+    usage: {
+        plan: string;
+        documents: { used: number; limit: number; percent: number };
+        storage: { used: number; usedFormatted: string; limit: number; limitFormatted: string; percent: number };
+        features: { search: boolean; chat: boolean };
+    };
 }
 
 export default function AccountPage() {
-    const [usage, setUsage] = useState<UserUsage | null>(null);
+    const [subData, setSubData] = useState<SubscriptionData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -30,7 +34,7 @@ export default function AccountPage() {
             .then(res => res.json())
             .then(data => {
                 if (data.usage) {
-                    setUsage(data.usage);
+                    setSubData(data);
                 }
             })
             .catch(err => console.error('Failed to fetch usage:', err))
@@ -43,6 +47,8 @@ export default function AccountPage() {
             const data = await res.json();
             if (data.url) {
                 window.location.href = data.url;
+            } else if (data.error) {
+                alert(data.error);
             }
         } catch (error) {
             console.error('Portal error:', error);
@@ -59,7 +65,9 @@ export default function AccountPage() {
         );
     }
 
+    const usage = subData?.usage;
     const isPro = usage?.plan && ['Pro', 'Enterprise'].includes(usage.plan);
+    const isFree = subData?.tier === 'free';
 
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-6">
@@ -107,11 +115,11 @@ export default function AccountPage() {
                         </div>
 
                         <Button
-                            onClick={handleStripePortal}
+                            onClick={isFree ? () => window.location.href = '/dashboard/pricing' : handleStripePortal}
                             className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/20 transition-all flex items-center justify-center gap-2 relative z-10"
                         >
                             <CreditCard className="w-4 h-4" />
-                            Billing Portal
+                            {isFree ? 'Choose a Plan' : 'Billing Portal'}
                         </Button>
                     </Card>
 
@@ -184,8 +192,8 @@ export default function AccountPage() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-white font-bold">{(usage?.storage.used || 0).toFixed(1)}MB</span>
-                                        <span className="text-white/40 text-sm"> / {usage?.storage.limit}MB</span>
+                                        <span className="text-white font-bold">{usage?.storage.usedFormatted || '0 B'}</span>
+                                        <span className="text-white/40 text-sm"> / {usage?.storage.limitFormatted || '100 MB'}</span>
                                     </div>
                                 </div>
 

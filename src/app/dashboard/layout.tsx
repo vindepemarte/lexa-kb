@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
@@ -61,8 +60,8 @@ export default function DashboardLayout({
                                     key={item.name}
                                     onClick={() => router.push(item.path)}
                                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${isActive
-                                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.15)]'
-                                            : 'text-white/60 hover:bg-white/5 hover:text-white border border-transparent'
+                                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.15)]'
+                                        : 'text-white/60 hover:bg-white/5 hover:text-white border border-transparent'
                                         }`}
                                 >
                                     <Icon className={`w-5 h-5 ${isActive ? 'text-pink-400' : ''}`} />

@@ -21,23 +21,24 @@ export async function GET(request: NextRequest) {
       'SELECT tier, subscription_status, subscription_current_period_end FROM users WHERE id = $1',
       [user.id]
     );
-    
+
     const userTier = userResult.rows[0]?.tier || 'free';
     const subscriptionStatus = userResult.rows[0]?.subscription_status || 'active';
     const periodEnd = userResult.rows[0]?.subscription_current_period_end;
 
     // Get usage stats
     const usage = await getUserUsage(user.id);
-    
+
     // Get tier limits
     const tierConfig = TIERS[userTier as TierName];
-    
+
     return NextResponse.json({
       tier: userTier,
       tierName: tierConfig.name,
       subscriptionStatus,
       periodEnd,
       usage: {
+        plan: tierConfig.name,
         documents: {
           used: usage.documentCount,
           limit: tierConfig.limits.documents,

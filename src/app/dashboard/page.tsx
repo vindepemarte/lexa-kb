@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { UpgradeModal } from '@/components/dashboard/upgrade-modal';
 import { OnboardingFlow } from '@/components/dashboard/onboarding-flow';
 import {
@@ -43,7 +42,6 @@ interface Usage {
 }
 
 export default function Dashboard() {
-  const router = useRouter();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [loading, setLoading] = useState(true);
@@ -130,10 +128,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    window.location.href = '/';
-  };
+
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -291,7 +286,7 @@ export default function Dashboard() {
                   <input
                     type="file"
                     name="file"
-                    accept=".pdf,.txt,.md"
+                    accept=".pdf,.txt,.md,.doc,.docx,.csv,.json,.html,.xml,.rtf,.log"
                     required
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-500 file:text-white file:cursor-pointer"
                   />
