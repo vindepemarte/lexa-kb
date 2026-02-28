@@ -4,6 +4,16 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import {
+  Search as SearchIcon,
+  Rocket,
+  Target,
+  Book,
+  Archive,
+  HelpCircle,
+  MessageCircle,
+  FileText
+} from 'lucide-react';
 
 interface SearchResult {
   id: number;
@@ -55,14 +65,14 @@ export default function SearchPage() {
     return colors[category] || colors.resources;
   };
 
-  const getCategoryEmoji = (category: string) => {
-    const emojis: Record<string, string> = {
-      projects: '🚀',
-      areas: '🎯',
-      resources: '📚',
-      archives: '📦',
-    };
-    return emojis[category] || '📄';
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'projects': return <Rocket className="w-5 h-5" />;
+      case 'areas': return <Target className="w-5 h-5" />;
+      case 'resources': return <Book className="w-5 h-5" />;
+      case 'archives': return <Archive className="w-5 h-5" />;
+      default: return <FileText className="w-5 h-5" />;
+    }
   };
 
   return (
@@ -74,35 +84,10 @@ export default function SearchPage() {
         `
       }} />
 
-      <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-5xl mx-auto px-4 py-3 sm:py-4">
-          <div className="flex justify-between items-center gap-2">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-pink-600 to-purple-600 flex items-center justify-center text-white text-lg sm:text-xl flex-shrink-0">
-                🔍
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-base sm:text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-purple-300 truncate">
-                  Search Knowledge
-                </h1>
-                <p className="text-xs text-white/50 hidden sm:block">Find anything instantly</p>
-              </div>
-            </div>
-
-            <a
-              href="/dashboard"
-              className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-md text-xs sm:text-sm font-medium min-h-[44px] flex items-center flex-shrink-0"
-            >
-              ← Dashboard
-            </a>
-          </div>
-        </div>
-      </header>
-
       <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 sm:py-12">
         <div className="text-center mb-8 sm:mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-pink-600 to-purple-600 text-white text-3xl sm:text-4xl mb-4 shadow-xl">
-            🔍
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-pink-600 to-purple-600 text-white mb-4 shadow-xl">
+            <SearchIcon className="w-8 h-8 sm:w-10 sm:h-10" />
           </div>
           <h2 className="text-3xl sm:text-4xl font-black mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-300">
             Search Your Knowledge
@@ -160,7 +145,10 @@ export default function SearchPage() {
                     Searching...
                   </span>
                 ) : (
-                  'Search 🔍'
+                  <span className="flex items-center justify-center gap-2">
+                    <SearchIcon className="w-4 h-4" />
+                    Search
+                  </span>
                 )}
               </Button>
             </div>
@@ -187,8 +175,8 @@ export default function SearchPage() {
             </div>
 
             {results.length === 0 ? (
-              <Card className="p-8 sm:p-12 bg-white/5 backdrop-blur-xl border-white/10 text-center">
-                <div className="text-5xl sm:text-6xl mb-4">🤔</div>
+              <Card className="p-8 sm:p-12 bg-white/5 backdrop-blur-xl border-white/10 text-center flex flex-col items-center">
+                <HelpCircle className="w-16 h-16 text-white/20 mb-4" />
                 <p className="text-white/60 text-base sm:text-lg mb-2">No matching documents found</p>
                 <p className="text-white/40 text-sm">Try different keywords or remove filters</p>
               </Card>
@@ -201,8 +189,8 @@ export default function SearchPage() {
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <div className="flex items-start gap-3 sm:gap-4">
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br ${getCategoryColor(result.para_category)} flex items-center justify-center text-white text-lg sm:text-xl flex-shrink-0`}>
-                        {getCategoryEmoji(result.para_category)}
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br ${getCategoryColor(result.para_category)} flex items-center justify-center text-white flex-shrink-0`}>
+                        {getCategoryIcon(result.para_category)}
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -242,8 +230,8 @@ export default function SearchPage() {
         )}
 
         {!searched && (
-          <div className="text-center py-8 sm:py-12">
-            <div className="text-5xl sm:text-6xl mb-4">💭</div>
+          <div className="text-center py-8 sm:py-12 flex flex-col items-center">
+            <MessageCircle className="w-16 h-16 text-white/20 mb-4" />
             <p className="text-white/60 text-base sm:text-lg">Start typing to search your knowledge base</p>
             <p className="text-white/40 text-sm mt-2">Use specific keywords for better results</p>
           </div>

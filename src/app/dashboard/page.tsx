@@ -4,6 +4,18 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { UpgradeModal } from '@/components/dashboard/upgrade-modal';
 import { OnboardingFlow } from '@/components/dashboard/onboarding-flow';
+import {
+  FileText,
+  HardDrive,
+  Plus,
+  Trash2,
+  AlertTriangle,
+  FolderOpen,
+  MapPin,
+  Book,
+  Archive,
+  File
+} from 'lucide-react';
 
 interface Document {
   id: number;
@@ -133,14 +145,14 @@ export default function Dashboard() {
     return colors[category] || 'bg-purple-500';
   };
 
-  const getCategoryEmoji = (category: string) => {
-    const emojis: Record<string, string> = {
-      projects: '🎯',
-      areas: '📍',
-      resources: '📚',
-      archives: '🗃️',
-    };
-    return emojis[category] || '📄';
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'projects': return <FolderOpen className="w-5 h-5 text-blue-300" />;
+      case 'areas': return <MapPin className="w-5 h-5 text-green-300" />;
+      case 'resources': return <Book className="w-5 h-5 text-purple-300" />;
+      case 'archives': return <Archive className="w-5 h-5 text-gray-300" />;
+      default: return <File className="w-5 h-5 text-purple-300" />;
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -153,53 +165,21 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
-      {/* Header */}
-      <header className="border-b border-white/10 backdrop-blur-sm bg-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="text-3xl">💜</div>
-              <h1 className="text-2xl font-bold text-white">Lexa KB</h1>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => router.push('/dashboard/search')}
-                className="px-4 py-2 text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg transition-all min-h-[44px]"
-              >
-                🔍 Search
-              </button>
-              <button
-                onClick={() => router.push('/dashboard/chat')}
-                className="px-4 py-2 text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg transition-all min-h-[44px]"
-              >
-                💬 Chat
-              </button>
-              <button
-                onClick={() => router.push('/dashboard/pricing')}
-                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg transition-all min-h-[44px]"
-              >
-                ⭐ Upgrade
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all min-h-[44px]"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
+    <>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-6">
+        {/* Page Header (Optional context for mobile) */}
+        <div className="mb-8 md:hidden">
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-300">
+            Overview
+          </h1>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Usage Stats */}
         {usage && (
           <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -208,7 +188,9 @@ export default function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="flex items-center justify-between mb-4 relative z-10">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-xl shadow-inner border border-purple-500/30">📄</div>
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-xl shadow-inner border border-purple-500/30">
+                    <FileText className="w-5 h-5 text-purple-300" />
+                  </div>
                   <span className="text-white font-bold tracking-wide">Documents</span>
                 </div>
                 <div className="text-right">
@@ -224,7 +206,7 @@ export default function Dashboard() {
               </div>
               {usage.documents.percent >= 80 && (
                 <p className="text-pink-400 text-xs mt-3 flex items-center animate-pulse">
-                  <span className="mr-1">⚠️</span> Almost at limit.
+                  <AlertTriangle className="w-4 h-4 mr-1" /> Almost at limit.
                   <button onClick={() => setShowUpgradeModal(true)} className="ml-1 underline font-semibold hover:text-pink-300 transition-colors">Upgrade now</button>
                 </p>
               )}
@@ -235,7 +217,9 @@ export default function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="flex items-center justify-between mb-4 relative z-10">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-xl shadow-inner border border-blue-500/30">💾</div>
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-xl shadow-inner border border-blue-500/30">
+                    <HardDrive className="w-5 h-5 text-blue-300" />
+                  </div>
                   <span className="text-white font-bold tracking-wide">Storage</span>
                 </div>
                 <div className="text-right">
@@ -251,7 +235,7 @@ export default function Dashboard() {
               </div>
               {usage.storage.percent >= 80 && (
                 <p className="text-pink-400 text-xs mt-3 flex items-center animate-pulse">
-                  <span className="mr-1">⚠️</span> Almost at limit.
+                  <AlertTriangle className="w-4 h-4 mr-1" /> Almost at limit.
                   <button onClick={() => setShowUpgradeModal(true)} className="ml-1 underline font-semibold hover:text-pink-300 transition-colors">Upgrade now</button>
                 </p>
               )}
@@ -264,9 +248,9 @@ export default function Dashboard() {
           {!showUpload ? (
             <button
               onClick={() => setShowUpload(true)}
-              className="w-full min-h-[56px] bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center space-x-2"
+              className="w-full min-h-[56px] bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center space-x-2 shadow-lg shadow-purple-500/20"
             >
-              <span className="text-2xl">➕</span>
+              <Plus className="w-6 h-6" />
               <span>Upload Document</span>
             </button>
           ) : (
@@ -337,8 +321,8 @@ export default function Dashboard() {
         <div>
           <h2 className="text-xl font-semibold text-white mb-4">Your Documents</h2>
           {documents.length === 0 ? (
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-12 text-center">
-              <div className="text-6xl mb-4">📄</div>
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-12 text-center flex flex-col items-center">
+              <FileText className="w-16 h-16 text-white/20 mb-4" />
               <p className="text-white/70 text-lg">No documents yet</p>
               <p className="text-white/50 text-sm mt-2">Upload your first document to get started</p>
             </div>
@@ -351,7 +335,7 @@ export default function Dashboard() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center space-x-2">
-                      <span className="text-2xl">{getCategoryEmoji(doc.para_category)}</span>
+                      {getCategoryIcon(doc.para_category)}
                       <span className={`px-2 py-1 text-xs font-medium text-white rounded ${getCategoryColor(doc.para_category)}`}>
                         {doc.para_category}
                       </span>
@@ -362,7 +346,11 @@ export default function Dashboard() {
                       className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50"
                       title="Delete document"
                     >
-                      {deleting === doc.id ? '⏳' : '🗑️'}
+                      {deleting === doc.id ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                   <h3 className="text-white font-medium mb-2 line-clamp-2">{doc.title}</h3>
@@ -375,7 +363,7 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       <OnboardingFlow />
       {usage && (
@@ -386,6 +374,6 @@ export default function Dashboard() {
           storageUsage={usage.storage}
         />
       )}
-    </div>
+    </>
   );
 }

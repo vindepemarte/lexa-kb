@@ -36,32 +36,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message required' }, { status: 400 });
     }
 
-    // Fetch user's documents to provide context
-    const documentsResult = await query(
-      'SELECT title, content, para_category, file_type FROM documents WHERE user_id = $1 AND content IS NOT NULL AND content != \'\' ORDER BY created_at DESC LIMIT 50',
-      [user.id]
-    );
+    // --- INTELLIGENT CONTEXT RETRIEVAL ---
+    // Instead of grabbing all documents, use PostgreSQL full-text search
+    // to find the most relevant documents related to the user's specific question.
+    const searchParams: unknown[] = [message, user.id];
+    const searchSql = `
+      SELECT id, title, para_category, content, file_type, 
+             ts_rank(to_tsvector('english', coalesce(content, '')), plainto_tsquery($1)) as rank
+      FROM documents
+      WHERE user_id = $2
+        AND content IS NOT NULL
+        AND content != ''
+      ORDER BY rank DESC, created_at DESC
+      LIMIT 10
+    `;
 
-    // Build context from documents
-    let documentsContext = '';
-    if (documentsResult.rows.length > 0) {
-      documentsContext = '\n\nUser\'s Documents:\n' + documentsResult.rows.map((doc: { content: string, title: string, para_category: string, file_type: string }, i: number) => {
-        const preview = doc.content.substring(0, 1000); // First 1000 chars per doc
-        return `${i + 1}. "${doc.title}" (${doc.para_category}, ${doc.file_type}):\n${preview}${doc.content.length > 1000 ? '...' : ''}`;
-      }).join('\n\n');
+    const relevantDocsResult = await query(searchSql, searchParams);
+    const relevantDocs = relevantDocsResult.rows;
+
+    let documentsContext = "No relevant documents found in the user's knowledge base.";
+
+    if (relevantDocs.length > 0) {
+      documentsContext = relevantDocs.map(doc =>
+        `[Document: ${doc.title} | Category: ${doc.para_category} | Type: ${doc.file_type}]\n${doc.content}\n`
+      ).join('\n---\n\n');
     }
 
     // Build system prompt with document context
-    const systemPrompt = `You are Lexa, a friendly AI assistant who helps users organize and understand their documents. You have access to the user's uploaded documents and can answer questions about them.
+    const systemPrompt = `You are Lexa, an intelligent, helpful, and concise AI assistant for a personal knowledge base.
+You are helping the user based ONLY on the most relevant excerpts retrieved from their documents provided below.
 
-${documentsContext ? documentsContext : 'The user has not uploaded any documents yet.'}
+The documents follow the PARA method (Projects, Areas, Resources, Archives).
 
-When answering:
-- If asked about documents, reference specific documents by title
-- Provide accurate information based on the document content
-- Be helpful, concise, and warm
-- Use emojis occasionally 💜
-- If you don't know something based on the documents, say so honestly`;
+Relevant Knowledge Base Context:
+${documentsContext}
+
+Instructions:
+1. Answer the user's question using ONLY the context provided above.
+2. If the answer is not in the context, politely inform the user that you couldn't find it in their uploaded documents, but offer a general helpful answer if possible.
+3. Keep answers concise, extremely well-formatted (use markdown), and professional.
+4. If appropriate, cite the document title you are referencing (e.g., "According to [Document Title]...").
+5. Do not invent information about the user's files.`;
 
     // Call OpenRouter API
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
