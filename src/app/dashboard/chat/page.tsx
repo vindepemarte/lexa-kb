@@ -51,7 +51,7 @@ export default function ChatPage() {
       });
 
       const data = await res.json();
-      
+
       if (res.status === 403 && data.requiresUpgrade) {
         // Feature gate - show upgrade prompt
         setMessages(prev => [...prev, {
@@ -66,7 +66,7 @@ export default function ChatPage() {
           timestamp: new Date()
         }]);
       }
-    } catch (error) {
+    } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: 'Sorry, I could not connect. Please check if the chat service is configured.',
@@ -127,7 +127,7 @@ export default function ChatPage() {
                 💜
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-300">
-                Hi! I'm Lexa
+                Hi! I&apos;m Lexa
               </h2>
               <p className="text-white/70 text-base sm:text-lg mb-8 max-w-md mx-auto px-4">
                 Your AI assistant for the knowledge base. Ask me anything about your documents!
@@ -138,7 +138,7 @@ export default function ChatPage() {
                   onClick={() => setInput("What's in my knowledge base?")}
                   className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10 hover:border-purple-500/30 transition-all text-left group min-h-[80px]"
                 >
-                  <p className="font-medium text-white text-sm sm:text-base group-hover:text-purple-300">📚 What's in my knowledge base?</p>
+                  <p className="font-medium text-white text-sm sm:text-base group-hover:text-purple-300">📚 What&apos;s in my knowledge base?</p>
                   <p className="text-xs sm:text-sm text-white/50 mt-1">Get an overview of your documents</p>
                 </button>
 
@@ -176,20 +176,18 @@ export default function ChatPage() {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white flex-shrink-0 ${
-                    msg.role === 'user'
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white flex-shrink-0 ${msg.role === 'user'
                       ? 'bg-gradient-to-br from-blue-600 to-blue-700'
                       : 'bg-gradient-to-br from-purple-600 to-pink-600'
-                  }`}>
+                    }`}>
                     {msg.role === 'user' ? '👤' : '💜'}
                   </div>
 
                   <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-sm sm:text-base ${
-                      msg.role === 'user'
+                    <div className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-sm sm:text-base ${msg.role === 'user'
                         ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white'
                         : 'bg-white/10 border border-white/10 text-white backdrop-blur-xl'
-                    }`}>
+                      }`}>
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
                     <span className="text-[10px] sm:text-xs text-white/40 mt-1 px-2">

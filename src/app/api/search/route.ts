@@ -7,10 +7,10 @@ export async function POST(request: NextRequest) {
   try {
     // Check if user has access to search feature (Personal+)
     const accessCheck = await checkFeatureAccess(request, 'search');
-    
+
     if (!accessCheck.allowed) {
       return NextResponse.json(
-        { 
+        {
           error: accessCheck.error,
           requiresUpgrade: true,
           upgradePrompt: accessCheck.upgradePrompt,
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         AND content IS NOT NULL
         AND content != ''
     `;
-    const params: any[] = [searchQuery, user.id];
+    const params: unknown[] = [searchQuery, user.id];
     let paramCount = 2;
 
     if (paraCategory) {

@@ -40,17 +40,17 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        
+
         // Get customer email
         let customerEmail = session.customer_email;
-        
+
         if (!customerEmail && session.customer) {
           const customer = await stripe.customers.retrieve(session.customer as string);
           if ('email' in customer) {
             customerEmail = customer.email;
           }
         }
-        
+
         if (!customerEmail) {
           console.error('No customer email found');
           break;
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         // Get price ID from line items
         const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
         const priceId = lineItems.data[0]?.price?.id;
-        
+
         if (!priceId) {
           console.error('No price ID found');
           break;
@@ -97,17 +97,17 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
-        
+
         // Get customer
         const customer = await stripe.customers.retrieve(subscription.customer as string);
         const email = 'email' in customer ? customer.email : null;
-        
+
         if (!email) break;
 
         // Get price ID
         const priceId = subscription.items.data[0]?.price?.id;
         const tier = PRICE_TO_TIER[priceId];
-        
+
         if (!tier) break;
 
         // Update user
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
           [
             tier,
             subscription.status,
-            (subscription as any).current_period_end || Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60),
+            (subscription as Stripe.Subscription & { current_period_end?: number }).current_period_end || Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60),
             email,
           ]
         );
@@ -132,11 +132,11 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        
+
         // Get customer
         const customer = await stripe.customers.retrieve(subscription.customer as string);
         const email = 'email' in customer ? customer.email : null;
-        
+
         if (!email) break;
 
         // Downgrade to free

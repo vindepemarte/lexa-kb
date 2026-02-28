@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
-import { checkUploadLimit, getUserUsage } from '@/lib/subscription-middleware';
+import { checkUploadLimit } from '@/lib/subscription-middleware';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import PDFParser from 'pdf2json';
@@ -21,10 +21,10 @@ export async function POST(request: NextRequest) {
     // Check upload limits BEFORE processing
     const fileSizeBytes = file.size;
     const uploadCheck = await checkUploadLimit(request, fileSizeBytes);
-    
+
     if (!uploadCheck.allowed) {
       return NextResponse.json(
-        { 
+        {
           error: uploadCheck.error,
           requiresUpgrade: true,
         },
@@ -61,34 +61,35 @@ export async function POST(request: NextRequest) {
       if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
         // Extract text from PDF using pdf2json
         console.log('Extracting text from PDF:', file.name);
-        
+
         content = await new Promise<string>((resolve, reject) => {
-          const pdfParser = new (PDFParser as any)(null, 1);
-          
-          pdfParser.on('pdfParser_dataError', (errData: any) => {
-            console.error('PDF parse error:', errData.parserError);
+          const pdfParser = new (PDFParser as typeof PDFParser)(null, true);
+
+          pdfParser.on('pdfParser_dataError', (errData: Error | { parserError: Error }) => {
+            const error = errData instanceof Error ? errData : errData.parserError;
+            console.error('PDF parse error:', error);
             reject(new Error('PDF parse failed'));
           });
-          
-          pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
+
+          pdfParser.on('pdfParser_dataReady', (pdfData: { Pages: { Texts: { R: { T: string }[] }[] }[] }) => {
             try {
               // Extract text from all pages
-              const text = pdfData.Pages.map((page: any) => {
-                return page.Texts.map((text: any) => {
+              const text = pdfData.Pages.map((page: { Texts: { R: { T: string }[] }[] }) => {
+                return page.Texts.map((text: { R: { T: string }[] }) => {
                   return decodeURIComponent(text.R[0].T);
                 }).join(' ');
               }).join('\n');
-              
+
               resolve(text);
             } catch (err) {
               reject(err);
             }
           });
-          
+
           // Parse from buffer
           pdfParser.parseBuffer(buffer);
         });
-        
+
         console.log('Extracted PDF text length:', content.length);
       } else if (file.type.startsWith('text/') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
         // Plain text files

@@ -5,7 +5,7 @@ const pool = new Pool({
   ssl: false,
 });
 
-export async function query(text: string, params?: any[]) {
+export async function query(text: string, params?: unknown[]) {
   const start = Date.now();
   const result = await pool.query(text, params);
   const duration = Date.now() - start;
@@ -42,7 +42,7 @@ export async function initDB() {
       await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR(255);`);
       await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_current_period_end TIMESTAMP;`);
       console.log('✅ Subscription columns added');
-    } catch (error) {
+    } catch {
       console.log('⚠️ Subscription columns may already exist');
     }
 
@@ -65,7 +65,7 @@ export async function initDB() {
     try {
       await query(`ALTER TABLE documents ADD COLUMN IF NOT EXISTS embedding VECTOR(384);`);
       console.log('✅ Vector column added for embeddings');
-    } catch (error) {
+    } catch {
       console.log('⚠️ Vector column not added (pgvector may not be fully configured)');
     }
 

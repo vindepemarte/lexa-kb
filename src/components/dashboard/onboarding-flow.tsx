@@ -71,7 +71,7 @@ export function OnboardingFlow() {
                                 </div>
                                 <h2 className="text-xl font-bold font-sans tracking-tight">The P.A.R.A. Method</h2>
                                 <p className="text-white/70 text-sm leading-relaxed">
-                                    We automatically organize your uploads into Projects, Areas, Resources, or Archives based on Tiago Forte's proven method.
+                                    We automatically organize your uploads into Projects, Areas, Resources, or Archives based on Tiago Forte&apos;s proven method.
                                 </p>
                             </div>
                         )}
@@ -82,7 +82,7 @@ export function OnboardingFlow() {
                                 <div className="w-20 h-20 mx-auto rounded-xl bg-white/5 border border-white/20 flex items-center justify-center text-4xl">
                                     📄
                                 </div>
-                                <h2 className="text-2xl font-bold font-sans tracking-tight">Let's Go!</h2>
+                                <h2 className="text-2xl font-bold font-sans tracking-tight">Let&apos;s Go!</h2>
                                 <p className="text-white/70 text-base leading-relaxed">
                                     Start by uploading your first document, article, or note to build your knowledge base.
                                 </p>

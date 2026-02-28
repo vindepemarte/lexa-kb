@@ -7,10 +7,10 @@ export async function POST(request: NextRequest) {
   try {
     // Check if user has access to chat feature (Pro+)
     const accessCheck = await checkFeatureAccess(request, 'chat');
-    
+
     if (!accessCheck.allowed) {
       return NextResponse.json(
-        { 
+        {
           error: accessCheck.error,
           requiresUpgrade: true,
           upgradePrompt: accessCheck.upgradePrompt,
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     // Build context from documents
     let documentsContext = '';
     if (documentsResult.rows.length > 0) {
-      documentsContext = '\n\nUser\'s Documents:\n' + documentsResult.rows.map((doc: any, i: number) => {
+      documentsContext = '\n\nUser\'s Documents:\n' + documentsResult.rows.map((doc: { content: string, title: string, para_category: string, file_type: string }, i: number) => {
         const preview = doc.content.substring(0, 1000); // First 1000 chars per doc
         return `${i + 1}. "${doc.title}" (${doc.para_category}, ${doc.file_type}):\n${preview}${doc.content.length > 1000 ? '...' : ''}`;
       }).join('\n\n');

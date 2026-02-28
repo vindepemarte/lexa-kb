@@ -63,7 +63,7 @@ export default function Home() {
             💜
           </div>
           <h1 className="text-3xl sm:text-4xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200">
-            Lexa's Knowledge Base
+            Lexa&apos;s Knowledge Base
           </h1>
           <p className="text-base sm:text-lg text-purple-200/80">Your Second Brain, Powered by AI</p>
         </div>
@@ -73,21 +73,19 @@ export default function Home() {
           {/* Tab Switcher */}
           <div className="flex mb-6 bg-white/5 rounded-lg p-1">
             <button
-              className={`flex-1 py-2.5 px-4 rounded-md text-sm font-semibold transition-all ${
-                isLogin
+              className={`flex-1 py-2.5 px-4 rounded-md text-sm font-semibold transition-all ${isLogin
                   ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
                   : 'text-white/60 hover:text-white'
-              }`}
+                }`}
               onClick={() => setIsLogin(true)}
             >
               Login
             </button>
             <button
-              className={`flex-1 py-2.5 px-4 rounded-md text-sm font-semibold transition-all ${
-                !isLogin
+              className={`flex-1 py-2.5 px-4 rounded-md text-sm font-semibold transition-all ${!isLogin
                   ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
                   : 'text-white/60 hover:text-white'
-              }`}
+                }`}
               onClick={() => setIsLogin(false)}
             >
               Register

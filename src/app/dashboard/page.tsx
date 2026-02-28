@@ -79,8 +79,6 @@ export default function Dashboard() {
         body: formData,
       });
 
-      const data = await res.json();
-
       if (res.ok) {
         setTitle('');
         setShowUpload(false);
