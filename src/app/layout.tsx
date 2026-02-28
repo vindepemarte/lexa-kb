@@ -6,8 +6,21 @@ import { Providers } from "@/components/providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Lexa's Knowledge Base",
-  description: "Give your brain a backup drive",
+  title: "Lexa KB - Your AI-Powered Second Brain",
+  description: "Upload your notes, documents, and ideas. Get them organized, searchable, and chat with AI about your knowledge.",
+  openGraph: {
+    title: "Lexa KB - Your AI-Powered Second Brain",
+    description: "Upload your notes, documents, and ideas. Get them organized, searchable, and chat with AI about your knowledge.",
+    url: "https://app.hellolexa.space",
+    siteName: "Lexa KB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lexa KB - Your AI-Powered Second Brain",
+    description: "Upload your notes, documents, and ideas. Get them organized, searchable, and chat with AI about your knowledge.",
+    site: "@hellolexa_",
+  },
 };
 
 export default function RootLayout({
