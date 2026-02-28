@@ -32,6 +32,11 @@ export default function DashboardLayout({
 
     return (
         <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] relative overflow-hidden">
+            {/* Skip to main content link for accessibility */}
+            <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-purple-600 focus:text-white focus:rounded-lg">
+                Skip to main content
+            </a>
+            
             {/* Background ambient glow effect */}
             <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
                 backgroundImage: `
@@ -100,7 +105,7 @@ export default function DashboardLayout({
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 relative z-10 overflow-y-auto pb-20 md:pb-0 h-screen">
+            <main id="main-content" className="flex-1 relative z-10 overflow-y-auto pb-20 md:pb-0 h-screen">
                 {children}
             </main>
 

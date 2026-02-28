@@ -246,6 +246,7 @@ export default function Dashboard() {
             <button
               onClick={() => setShowUpload(true)}
               className="w-full min-h-[56px] bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center space-x-2 shadow-lg shadow-purple-500/20"
+              aria-label="Open upload form"
             >
               <Plus className="w-6 h-6" />
               <span>Upload Document</span>
@@ -343,6 +344,7 @@ export default function Dashboard() {
                       disabled={deleting === doc.id}
                       className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50"
                       title="Delete document"
+                      aria-label={`Delete ${doc.title}`}
                     >
                       {deleting === doc.id ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
