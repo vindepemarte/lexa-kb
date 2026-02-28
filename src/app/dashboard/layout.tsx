@@ -6,7 +6,8 @@ import {
     Search,
     MessageSquare,
     Star,
-    UserCircle
+    UserCircle,
+    HelpCircle
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -80,6 +81,14 @@ export default function DashboardLayout({
                         <Star className="w-5 h-5" />
                         <span>Upgrade Pro</span>
                     </button>
+
+                    <a
+                        href="mailto:lexa@hellolexa.space"
+                        className="w-full flex items-center space-x-3 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 rounded-xl transition-all font-medium"
+                    >
+                        <HelpCircle className="w-5 h-5" />
+                        <span>Help & Support</span>
+                    </a>
 
                     <button
                         onClick={handleLogout}
