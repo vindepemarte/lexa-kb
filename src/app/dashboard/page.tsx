@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { UpgradeModal } from '@/components/dashboard/upgrade-modal';
 import { OnboardingFlow } from '@/components/dashboard/onboarding-flow';
 import {
@@ -42,6 +43,7 @@ interface Usage {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [loading, setLoading] = useState(true);
@@ -326,7 +328,8 @@ export default function Dashboard() {
               {documents.map((doc) => (
                 <div
                   key={doc.id}
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:border-purple-500/50 transition-all group"
+                  onClick={() => router.push(`/dashboard/docs/${doc.id}`)}
+                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:border-purple-500/50 transition-all group cursor-pointer"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center space-x-2">

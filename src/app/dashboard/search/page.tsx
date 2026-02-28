@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -31,20 +31,8 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [paraCategory, setParaCategory] = useState('');
-  const [hasSearchAccess, setHasSearchAccess] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    fetch('/api/subscription')
-      .then(res => res.json())
-      .then(data => {
-        if (data.usage?.features) {
-          setHasSearchAccess(data.usage.features.search);
-        } else {
-          setHasSearchAccess(false);
-        }
-      })
-      .catch(() => setHasSearchAccess(false));
-  }, []);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLimited, setIsLimited] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +50,8 @@ export default function SearchPage() {
 
       const data = await res.json();
       setResults(data.results || []);
+      setTotalCount(data.totalCount || 0);
+      setIsLimited(data.limited || false);
     } catch (error) {
       console.error('Search failed:', error);
       alert('Search failed. Please try again.');
@@ -92,21 +82,6 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] relative overflow-hidden">
-      {hasSearchAccess === false && (
-        <div className="absolute inset-0 z-50 bg-[#0f0c29]/80 backdrop-blur-md flex flex-col items-center justify-center p-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600/30 to-pink-600/30 border border-purple-500/30 mb-6">
-            <Lock className="w-8 h-8 text-pink-400" />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Search is a Personal Feature</h2>
-          <p className="text-white/60 text-center mb-6 max-w-md">Upgrade to Personal (€9/mo) or higher to unlock full-text search across all your documents.</p>
-          <a
-            href="/dashboard/pricing"
-            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/20 transition-all"
-          >
-            Upgrade Now
-          </a>
-        </div>
-      )}
       <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
         backgroundImage: `
           radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
@@ -193,7 +168,8 @@ export default function SearchPage() {
                   <span className="text-white/50">No results found</span>
                 ) : (
                   <span className="font-medium text-purple-300">
-                    Found {results.length} result{results.length !== 1 ? 's' : ''}
+                    Found {totalCount} result{totalCount !== 1 ? 's' : ''}
+                    {isLimited && <span className="text-white/40"> (showing {results.length})</span>}
                   </span>
                 )}
               </p>
@@ -254,6 +230,22 @@ export default function SearchPage() {
                     </div>
                   </Card>
                 ))}
+              </div>
+            )}
+
+            {isLimited && (
+              <div className="mt-6 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-6 text-center">
+                <Lock className="w-6 h-6 text-pink-400 mx-auto mb-3" />
+                <p className="text-white font-semibold mb-1">
+                  {totalCount - results.length} more result{totalCount - results.length !== 1 ? 's' : ''} available
+                </p>
+                <p className="text-white/60 text-sm mb-4">Upgrade to Personal to see all search results</p>
+                <a
+                  href="/dashboard/pricing"
+                  className="inline-block px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-lg transition-all text-sm"
+                >
+                  Upgrade for €9/mo
+                </a>
               </div>
             )}
           </div>
