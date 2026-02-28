@@ -8,6 +8,8 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Lexa KB - Your AI-Powered Second Brain",
   description: "Upload your notes, documents, and ideas. Get them organized, searchable, and chat with AI about your knowledge.",
+  manifest: "/manifest.json",
+  themeColor: "#a855f7",
   openGraph: {
     title: "Lexa KB - Your AI-Powered Second Brain",
     description: "Upload your notes, documents, and ideas. Get them organized, searchable, and chat with AI about your knowledge.",

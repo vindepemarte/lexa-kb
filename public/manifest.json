@@ -1,0 +1,16 @@
+{
+  "name": "Lexa KB - Your AI-Powered Second Brain",
+  "short_name": "Lexa KB",
+  "description": "Upload your notes, documents, and ideas. Get them organized, searchable, and chat with AI about your knowledge.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f0c29",
+  "theme_color": "#a855f7",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
