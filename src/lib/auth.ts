@@ -2,7 +2,18 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { query } from './db';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error('⚠️ JWT_SECRET environment variable is not set. Authentication will fail.');
+}
+
+function getJwtSecret(): string {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return JWT_SECRET;
+}
 
 export interface User {
   id: number;
@@ -22,14 +33,14 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 export function generateToken(user: User): string {
   return jwt.sign(
     { id: user.id, email: user.email, tier: user.tier },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '7d' }
   );
 }
 
 export function verifyToken(token: string): User | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as User;
+    return jwt.verify(token, getJwtSecret()) as User;
   } catch {
     return null;
   }
