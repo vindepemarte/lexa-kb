@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -26,6 +27,7 @@ interface SearchResult {
 }
 
 export default function SearchPage() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -191,7 +193,11 @@ export default function SearchPage() {
                 {results.map((result, index) => (
                   <Card
                     key={result.id}
-                    className="p-4 sm:p-6 bg-white/10 backdrop-blur-xl border-white/10 hover:border-purple-500/30 transition-all cursor-pointer group"
+                    onClick={() => router.push(`/dashboard/docs/${result.id}`)}
+                    onKeyDown={(e) => e.key === 'Enter' && router.push(`/dashboard/docs/${result.id}`)}
+                    role="button"
+                    tabIndex={0}
+                    className="p-4 sm:p-6 bg-white/10 backdrop-blur-xl border-white/10 hover:border-purple-500/30 transition-all cursor-pointer group focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <div className="flex items-start gap-3 sm:gap-4">
