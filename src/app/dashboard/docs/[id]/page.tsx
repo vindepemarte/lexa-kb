@@ -13,8 +13,13 @@ import {
     Book,
     Archive,
     Calendar,
-    Type
+    Type,
+    Sparkles,
+    ChevronDown,
+    ChevronUp,
+    Crown
 } from 'lucide-react';
+import { UpgradeModal } from '@/components/dashboard/upgrade-modal';
 
 interface DocumentData {
     id: number;
@@ -25,6 +30,7 @@ interface DocumentData {
     created_at: string;
     wordCount: number;
     readingTimeMin: number;
+    summary?: string;
 }
 
 export default function DocumentViewerPage() {
@@ -34,6 +40,11 @@ export default function DocumentViewerPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [summary, setSummary] = useState<string | null>(null);
+    const [summarizing, setSummarizing] = useState(false);
+    const [summaryError, setSummaryError] = useState<string | null>(null);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showFullSummary, setShowFullSummary] = useState(false);
 
     useEffect(() => {
         if (!params.id) return;
@@ -43,10 +54,45 @@ export default function DocumentViewerPage() {
                 if (!res.ok) throw new Error('Document not found');
                 return res.json();
             })
-            .then(data => setDoc(data.document))
+            .then(data => {
+                setDoc(data.document);
+                if (data.document.summary) {
+                    setSummary(data.document.summary);
+                }
+            })
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
     }, [params.id]);
+
+    const handleSummarize = async () => {
+        if (!doc) return;
+        setSummarizing(true);
+        setSummaryError(null);
+
+        try {
+            const res = await fetch(`/api/documents/${doc.id}/summarize`, {
+                method: 'POST',
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                if (data.requiresUpgrade) {
+                    setShowUpgradeModal(true);
+                } else {
+                    setSummaryError(data.error || 'Failed to generate summary');
+                }
+                return;
+            }
+
+            setSummary(data.summary);
+        } catch (err) {
+            setSummaryError('Failed to generate summary');
+            console.error('Summarize error:', err);
+        } finally {
+            setSummarizing(false);
+        }
+    };
 
     const handleDelete = async () => {
         if (!confirm('Delete this document permanently?')) return;
@@ -165,6 +211,86 @@ export default function DocumentViewerPage() {
                 </div>
             </div>
 
+            {/* AI Summary Section */}
+            <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl border border-purple-500/20 rounded-2xl p-6 sm:p-8 mb-6 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-400" />
+                        <h2 className="text-lg font-semibold text-white">AI Summary</h2>
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                            <Crown className="w-3 h-3" /> PRO
+                        </span>
+                    </div>
+                    {!summary && (
+                        <button
+                            onClick={handleSummarize}
+                            disabled={summarizing}
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 min-h-[44px]"
+                        >
+                            {summarizing ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    <span>Generating...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="w-4 h-4" />
+                                    <span>Summarize</span>
+                                </>
+                            )}
+                        </button>
+                    )}
+                </div>
+
+                {summaryError && (
+                    <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
+                        {summaryError}
+                    </div>
+                )}
+
+                {summary ? (
+                    <div className="space-y-3">
+                        <div className="text-white/80 text-sm sm:text-base leading-relaxed">
+                            {showFullSummary || summary.length < 500 ? (
+                                <div className="prose prose-invert prose-sm max-w-none">
+                                    <pre className="whitespace-pre-wrap font-sans bg-transparent p-0 m-0 border-none">
+                                        {summary}
+                                    </pre>
+                                </div>
+                            ) : (
+                                <div className="prose prose-invert prose-sm max-w-none">
+                                    <pre className="whitespace-pre-wrap font-sans bg-transparent p-0 m-0 border-none">
+                                        {summary.substring(0, 500)}...
+                                    </pre>
+                                </div>
+                            )}
+                        </div>
+                        {summary.length > 500 && (
+                            <button
+                                onClick={() => setShowFullSummary(!showFullSummary)}
+                                className="flex items-center gap-1 text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+                            >
+                                {showFullSummary ? (
+                                    <>
+                                        <ChevronUp className="w-4 h-4" />
+                                        Show less
+                                    </>
+                                ) : (
+                                    <>
+                                        <ChevronDown className="w-4 h-4" />
+                                        Show full summary
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                ) : !summaryError && (
+                    <p className="text-white/50 text-sm">
+                        Generate an AI-powered summary of this document. Perfect for quickly understanding long content.
+                    </p>
+                )}
+            </div>
+
             {/* Document Content */}
             <div className="bg-[#1a1635]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
                 <div className="flex items-center gap-2 mb-6 pb-4 border-b border-white/10">
@@ -185,6 +311,14 @@ export default function DocumentViewerPage() {
                     </div>
                 )}
             </div>
+
+            <UpgradeModal
+                isOpen={showUpgradeModal}
+                onClose={() => setShowUpgradeModal(false)}
+                documentUsage={{ used: 1, limit: 10000, percent: 0.01 }}
+                storageUsage={{ usedFormatted: '0 MB', limitFormatted: '50 GB', percent: 0 }}
+                featureName="AI Summarization"
+            />
         </div>
     );
 }

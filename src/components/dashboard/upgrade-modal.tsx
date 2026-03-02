@@ -18,9 +18,10 @@ interface UpgradeModalProps {
         limitFormatted: string;
         percent: number;
     };
+    featureName?: string;
 }
 
-export function UpgradeModal({ isOpen, onClose, documentUsage, storageUsage }: UpgradeModalProps) {
+export function UpgradeModal({ isOpen, onClose, documentUsage, storageUsage, featureName }: UpgradeModalProps) {
     const router = useRouter();
 
     const handleUpgrade = () => {
@@ -46,12 +47,14 @@ export function UpgradeModal({ isOpen, onClose, documentUsage, storageUsage }: U
 
                         <div>
                             <DialogTitle className="text-2xl font-bold font-sans tracking-tight mb-2">
-                                {isLimitReached ? "You've reached your limit!" : "Unlock Lexa's Full Power!"}
+                                {isLimitReached ? "You've reached your limit!" : featureName ? `Unlock ${featureName}!` : "Unlock Lexa's Full Power!"}
                             </DialogTitle>
                             <DialogDescription className="text-white/70 text-base leading-relaxed">
                                 {isLimitReached
                                     ? "It looks like you've maxed out your current plan. Upgrade now to keep uploading and unlock advanced features."
-                                    : "Upgrade your plan to break limits, search with AI, and chat with all your documents."}
+                                    : featureName
+                                        ? `${featureName} is a Pro feature. Upgrade to unlock AI-powered insights and more.`
+                                        : "Upgrade your plan to break limits, search with AI, and chat with all your documents."}
                             </DialogDescription>
                         </div>
 
@@ -68,6 +71,10 @@ export function UpgradeModal({ isOpen, onClose, documentUsage, storageUsage }: U
                             <div className="flex items-center space-x-3 text-sm">
                                 <span className="text-purple-400 text-lg text-center w-6">✨</span>
                                 <span className="text-white/90">AI Search enabled</span>
+                            </div>
+                            <div className="flex items-center space-x-3 text-sm">
+                                <span className="text-purple-400 text-lg text-center w-6">✨</span>
+                                <span className="text-white/90">AI Chat & Summarization</span>
                             </div>
                         </div>
 

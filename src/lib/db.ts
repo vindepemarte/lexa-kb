@@ -69,6 +69,14 @@ export async function initDB() {
       console.log('⚠️ Vector column not added (pgvector may not be fully configured)');
     }
 
+    // Add summary column for AI-generated summaries
+    try {
+      await query(`ALTER TABLE documents ADD COLUMN IF NOT EXISTS summary TEXT;`);
+      console.log('✅ Summary column added');
+    } catch {
+      console.log('⚠️ Summary column may already exist');
+    }
+
     console.log('✅ Database initialized successfully');
   } catch (error) {
     console.error('❌ Database initialization error:', error);
