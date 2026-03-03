@@ -64,44 +64,50 @@ export async function POST(request: NextRequest) {
     const userTier = (currentUser?.tier || 'free') as TierName;
     const hasPdfAccess = canPerformAction(userTier, 'pdfExtraction');
 
+    // Reject PDF uploads from free users - they can't use the extracted text
+    if ((file.type === 'application/pdf' || file.name.endsWith('.pdf')) && !hasPdfAccess) {
+      return NextResponse.json(
+        {
+          error: 'PDF extraction requires Personal plan (€9/mo)',
+          requiresUpgrade: true,
+          upgradePrompt: 'PDF text extraction requires a Personal plan or higher. Upgrade to unlock full-text search and AI chat across your PDF documents.',
+        },
+        { status: 403 }
+      );
+    }
+
     try {
       if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-        if (!hasPdfAccess) {
-          // Free tier: store file but don't extract text
-          content = `[PDF uploaded: ${file.name}]\n\nPDF text extraction requires a Personal plan (€9/mo) or higher.\nUpgrade to unlock full-text search and AI chat across your PDF documents.`;
-        } else {
-          // Personal+ tier: extract text from PDF
+        // Personal+ tier: extract text from PDF
+        content = await new Promise<string>((resolve, reject) => {
+          const pdfParser = new (PDFParser as typeof PDFParser)(null, true);
 
-          content = await new Promise<string>((resolve, reject) => {
-            const pdfParser = new (PDFParser as typeof PDFParser)(null, true);
-
-            pdfParser.on('pdfParser_dataError', (errData: Error | { parserError: Error }) => {
-              const error = errData instanceof Error ? errData : errData.parserError;
-              console.error('PDF parse error:', error);
-              reject(new Error('PDF parse failed'));
-            });
-
-            pdfParser.on('pdfParser_dataReady', (pdfData: { Pages: { Texts: { R: { T: string }[] }[] }[] }) => {
-              try {
-                // Extract text from all pages
-                const text = pdfData.Pages.map((page: { Texts: { R: { T: string }[] }[] }) => {
-                  return page.Texts.map((text: { R: { T: string }[] }) => {
-                    return decodeURIComponent(text.R[0].T);
-                  }).join(' ');
-                }).join('\n');
-
-                resolve(text);
-              } catch (err) {
-                reject(err);
-              }
-            });
-
-            // Parse from buffer
-            pdfParser.parseBuffer(buffer);
+          pdfParser.on('pdfParser_dataError', (errData: Error | { parserError: Error }) => {
+            const error = errData instanceof Error ? errData : errData.parserError;
+            console.error('PDF parse error:', error);
+            reject(new Error('PDF parse failed'));
           });
 
-          console.log('Extracted PDF text length:', content.length);
-        }
+          pdfParser.on('pdfParser_dataReady', (pdfData: { Pages: { Texts: { R: { T: string }[] }[] }[] }) => {
+            try {
+              // Extract text from all pages
+              const text = pdfData.Pages.map((page: { Texts: { R: { T: string }[] }[] }) => {
+                return page.Texts.map((text: { R: { T: string }[] }) => {
+                  return decodeURIComponent(text.R[0].T);
+                }).join(' ');
+              }).join('\n');
+
+              resolve(text);
+            } catch (err) {
+              reject(err);
+            }
+          });
+
+          // Parse from buffer
+          pdfParser.parseBuffer(buffer);
+        });
+
+        console.log('Extracted PDF text length:', content.length);
       } else if (file.type.startsWith('text/') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
         // Plain text files
         content = buffer.toString('utf-8');

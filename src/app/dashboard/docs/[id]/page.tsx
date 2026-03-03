@@ -17,9 +17,11 @@ import {
     Sparkles,
     ChevronDown,
     ChevronUp,
-    Crown
+    Crown,
+    AlertTriangle
 } from 'lucide-react';
 import { UpgradeModal } from '@/components/dashboard/upgrade-modal';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 
 interface DocumentData {
     id: number;
@@ -45,6 +47,7 @@ export default function DocumentViewerPage() {
     const [summaryError, setSummaryError] = useState<string | null>(null);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showFullSummary, setShowFullSummary] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     useEffect(() => {
         if (!params.id) return;
@@ -95,7 +98,7 @@ export default function DocumentViewerPage() {
     };
 
     const handleDelete = async () => {
-        if (!confirm('Delete this document permanently?')) return;
+        setShowDeleteModal(false);
         setDeleting(true);
 
         try {
@@ -103,9 +106,11 @@ export default function DocumentViewerPage() {
             if (res.ok) {
                 router.push('/dashboard');
             } else {
-                alert('Failed to delete');
+                const data = await res.json();
+                alert(data.error || 'Failed to delete');
             }
-        } catch {
+        } catch (error) {
+            console.error('Delete error:', error);
             alert('Failed to delete');
         } finally {
             setDeleting(false);
@@ -168,7 +173,7 @@ export default function DocumentViewerPage() {
                 </button>
 
                 <button
-                    onClick={handleDelete}
+                    onClick={() => setShowDeleteModal(true)}
                     disabled={deleting}
                     className="flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all min-h-[44px] disabled:opacity-50"
                 >
@@ -311,6 +316,40 @@ export default function DocumentViewerPage() {
                     </div>
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+                <DialogContent className="sm:max-w-md bg-[#1a1635]/95 backdrop-blur-xl border border-white/10 p-0 overflow-hidden text-white shadow-2xl">
+                    <div className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                                <AlertTriangle className="w-6 h-6 text-red-400" />
+                            </div>
+                            <DialogTitle className="text-xl font-bold">Delete Document?</DialogTitle>
+                        </div>
+
+                        <DialogDescription className="text-white/70 mb-6">
+                            Are you sure you want to delete &ldquo;{doc?.title}&rdquo;? This action cannot be undone.
+                        </DialogDescription>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteModal(false)}
+                                className="flex-1 min-h-[44px] bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                disabled={deleting}
+                                className="flex-1 min-h-[44px] bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-all disabled:opacity-50"
+                            >
+                                {deleting ? 'Deleting...' : 'Delete'}
+                            </button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             <UpgradeModal
                 isOpen={showUpgradeModal}
