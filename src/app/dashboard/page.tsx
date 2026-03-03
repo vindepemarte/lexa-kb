@@ -365,7 +365,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <OnboardingFlow />
+      <OnboardingFlow onUploadComplete={fetchData} />
       {usage && (
         <UpgradeModal
           isOpen={showUpgradeModal}
