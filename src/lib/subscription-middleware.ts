@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from './db';
 import { canPerformAction, canUploadDocument, getUpgradePrompt, TierName } from './subscription';
+import { verifyToken } from './auth';
 
 interface User {
   id: number;
@@ -8,15 +9,15 @@ interface User {
   tier: TierName;
 }
 
-// Get current user from auth token
+// Get current user from auth token (with proper JWT signature verification)
 export async function getCurrentUser(request: NextRequest): Promise<User | null> {
   try {
     const token = request.cookies.get('auth-token')?.value;
     if (!token) return null;
 
-    // Simple JWT decode (you should verify properly in production)
-    const decoded = Buffer.from(token.split('.')[1], 'base64').toString();
-    const payload = JSON.parse(decoded);
+    // Properly verify JWT signature before trusting the payload
+    const payload = verifyToken(token);
+    if (!payload) return null;
 
     const result = await query(
       'SELECT id, email, tier FROM users WHERE id = $1',

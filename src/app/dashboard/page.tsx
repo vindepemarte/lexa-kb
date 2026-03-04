@@ -340,7 +340,7 @@ export default function Dashboard() {
                       </span>
                     </div>
                     <button
-                      onClick={() => handleDelete(doc.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(doc.id); }}
                       disabled={deleting === doc.id}
                       className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50"
                       title="Delete document"
