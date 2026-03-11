@@ -15,9 +15,10 @@ export async function query(text: string, params?: unknown[]) {
 
 export async function initDB() {
   try {
-    // Enable pgvector extension
+    // Enable required extensions
     await query(`CREATE EXTENSION IF NOT EXISTS vector;`);
-    console.log('✅ pgvector extension enabled');
+    await query(`CREATE EXTENSION IF NOT EXISTS pg_trgm;`);
+    console.log('✅ pgvector + pg_trgm extensions enabled');
 
     // Create users table
     await query(`
@@ -76,6 +77,22 @@ export async function initDB() {
     } catch {
       console.log('⚠️ Summary column may already exist');
     }
+
+    // Search-performance indexes (P0: search API latency)
+    // Helps: to_tsvector/plainto_tsquery ranking and title ILIKE fallback
+    await query(`
+      CREATE INDEX IF NOT EXISTS idx_documents_search_vector
+      ON documents USING GIN (to_tsvector('english', coalesce(content, '')));
+    `);
+    await query(`
+      CREATE INDEX IF NOT EXISTS idx_documents_title_trgm
+      ON documents USING GIN (title gin_trgm_ops);
+    `);
+    await query(`
+      CREATE INDEX IF NOT EXISTS idx_documents_user_created_at
+      ON documents (user_id, created_at DESC);
+    `);
+    console.log('✅ Search indexes ensured');
 
     console.log('✅ Database initialized successfully');
   } catch (error) {
