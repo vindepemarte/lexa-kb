@@ -14,6 +14,26 @@ const PRICE_TO_TIER: Record<string, string> = {
   'price_1T5FCTQyB02WZhhMufeyyHwh': 'enterprise',   // €99 Enterprise
 };
 
+const FALLBACK_PERIOD_END = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60);
+
+async function resolveSubscriptionPeriodEnd(session: Stripe.Checkout.Session): Promise<number> {
+  const subscriptionId = typeof session.subscription === 'string'
+    ? session.subscription
+    : session.subscription?.id;
+
+  if (!subscriptionId) {
+    return FALLBACK_PERIOD_END;
+  }
+
+  try {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    return (subscription as Stripe.Subscription & { current_period_end?: number }).current_period_end || FALLBACK_PERIOD_END;
+  } catch (error) {
+    console.error('Failed to resolve subscription period end:', error);
+    return FALLBACK_PERIOD_END;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
@@ -72,6 +92,11 @@ export async function POST(request: NextRequest) {
           break;
         }
 
+        const subscriptionId = typeof session.subscription === 'string'
+          ? session.subscription
+          : session.subscription?.id;
+        const currentPeriodEnd = await resolveSubscriptionPeriodEnd(session);
+
         // Update user in database
         await query(
           `UPDATE users 
@@ -85,8 +110,8 @@ export async function POST(request: NextRequest) {
           [
             tier,
             session.customer as string,
-            session.subscription as string,
-            session.expires_at || Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 days from now
+            subscriptionId || null,
+            currentPeriodEnd,
             customerEmail,
           ]
         );
